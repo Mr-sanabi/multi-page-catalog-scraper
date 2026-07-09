@@ -2,20 +2,20 @@
 
 
 ## Summary
-- Pages scraped: 3
-- Total books: 60
+- Pages scraped: 5
+- Total books: 100
 
 
 ## Ratings
-- Three: 13
-- One: 15
-- Four: 10
-- Five: 14
-- Two: 8
+- Three: 22
+- One: 22
+- Four: 18
+- Five: 19
+- Two: 19
 
 
 ## Availability
-- In stock: 60
+- In stock: 100
 
 
 ## Sample Records
