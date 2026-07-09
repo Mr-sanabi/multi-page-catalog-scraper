@@ -5,4 +5,5 @@ def fetch_html(url):
     if response.status_code != 200:
         return ""
     else:
+        response.encoding = "utf-8"
         return response.text

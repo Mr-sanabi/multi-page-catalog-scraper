@@ -1,5 +1,6 @@
 from fetcher import fetch_html
 from parser import parse_books
+from writer import save_csv, save_json, save_text
 
 def main():
     test_url = "https://books.toscrape.com/catalogue/page-1.html"
@@ -16,7 +17,8 @@ def main():
 
         all_books.extend(books)
 
-    print(len(all_books))
+    save_csv("data/processed/books.csv", all_books)
+    save_json("data/processed/books.json", all_books)
     
     
 
