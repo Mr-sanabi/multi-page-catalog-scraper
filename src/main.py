@@ -1,10 +1,9 @@
 from fetcher import fetch_html
 from parser import parse_books
 from writer import save_csv, save_json, save_text
+from reporter import build_report
 
 def main():
-    test_url = "https://books.toscrape.com/catalogue/page-1.html"
-
     
     all_books = []
     max_pages = 3
@@ -19,7 +18,8 @@ def main():
 
     save_csv("data/processed/books.csv", all_books)
     save_json("data/processed/books.json", all_books)
-    
+    report = build_report(all_books, max_pages)
+    save_text("reports/report.md", report)
     
 
 
