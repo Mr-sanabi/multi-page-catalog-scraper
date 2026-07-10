@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 def get_text_or_empty(parent, selector):
     tag = parent.select_one(selector)
@@ -20,18 +21,19 @@ def extract_book(card):
     availability = get_text_or_empty(card, ".availability")
     rating_tag = card.select_one("p.star-rating")
     product_url = get_attr_or_empty(card, "h3 a", "href")
+    base_url = "https://books.toscrape.com/catalogue/"
 
     if rating_tag and rating_tag.has_attr("class"):
         rating = rating_tag["class"][1]
     else:
-        return ""
+        rating = ""
     
     return {
         "title": title,
         "price": price,
         "availability": availability,
         "rating": rating,
-        "prodcut_url": product_url
+        "product_url": urljoin(base_url, product_url)
     }
     
 
