@@ -6,17 +6,26 @@ from writer import save_csv, save_json, save_text
 from reporter import build_report
 from logger_config import setup_logging
 
+def checker(value):
+    try:
+        page_value = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Number of pages must be an integer")
+    if page_value > 0:
+        return page_value
+    else:
+        raise argparse.ArgumentTypeError("Number of pages must be greater than 0")
+   
 def parse_args():
 
     parser = argparse.ArgumentParser(
-        description="description"
+        description="CLI scraper for extracting books from multiple catalog pages"
     )
-    parser.add_argument("--pages", type=int)
-    parser.add_argument("--csv")
-    parser.add_argument("--json")
-    parser.add_argument("--report")
+    parser.add_argument("--pages", type=checker, help="Number of pages", required=True)
+    parser.add_argument("--csv", default="data/processed/books.csv", help="CSV file saver")
+    parser.add_argument("--json", default="data/processed/books.json", help="JSON file saver")
+    parser.add_argument("--report", default="reports/report.md", help="Report file saver")
     return parser.parse_args()
-
 
 def main():
     args = parse_args()
