@@ -15,7 +15,7 @@ def checker(value):
         return page_value
     else:
         raise argparse.ArgumentTypeError("Number of pages must be greater than 0")
-   
+
 def parse_args():
 
     parser = argparse.ArgumentParser(
@@ -32,14 +32,27 @@ def main():
     setup_logging()
 
     all_books = []
+    successful_pages = 0
 
     for page_number in range(1, args.pages + 1):
         logging.info(f"Scraping page: {page_number}...")
         page_url = f"https://books.toscrape.com/catalogue/page-{page_number}.html"
         html = fetch_html(page_url)
+        if not html:
+            logging.warning(f"Warning this page is empty: {page_number}")
+            continue
+        
         books = parse_books(html)
+        if not books:
+            logging.warning(f"No books found on page: {page_number}")
+            continue
 
+        successful_pages+=1
         all_books.extend(books)
+
+    if not all_books:
+        logging.error("No books were collected. Pipeline stopped.")
+        return
 
     logging.info(f"Parsed {len(all_books)} books")
 
@@ -50,7 +63,7 @@ def main():
     save_json(args.json, all_books)
 
     logging.info("Generating report...")
-    report = build_report(all_books, args.pages)
+    report = build_report(all_books, successful_pages)
     save_text(args.report, report)
 
     logging.info("Pipeline completed")
