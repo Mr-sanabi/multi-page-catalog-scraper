@@ -1,140 +1,191 @@
 # Multi-page Catalog Scraper
 
-Python CLI scraper for extracting book data from multiple catalog pages and exporting CSV, JSON, and Markdown reports.
+A Python CLI tool that extracts book data from multiple catalog pages and exports structured CSV, JSON, and Markdown outputs.
+
+The project uses [Books to Scrape](https://books.toscrape.com/), a public website created for web scraping practice.
 
 ## Features
 
-- Scrapes multiple catalog pages
-- Extracts book title, price, availability, rating, and product URL
-- Handles relative product links from catalog cards
-- Saves scraped data to CSV
-- Saves scraped data to JSON
+- Scrapes a configurable number of catalog pages
+- Extracts title, price, availability, rating, and product URL
+- Converts relative product links into absolute URLs
+- Exports records to CSV and JSON
 - Generates a Markdown summary report
-- Counts books by rating
-- Counts books by availability status
-- Provides CLI arguments for page count and output paths
-- Shows scraping progress with logging
+- Counts books by rating and availability
+- Validates that the requested page count is greater than zero
+- Provides default output paths with optional CLI overrides
+- Uses a request timeout to prevent stalled connections
+- Handles HTTP and network errors without crashing the pipeline
+- Logs failed or empty pages and continues processing
+- Reports the number of successfully scraped pages
+- Creates missing parent directories for output files automatically
+- Shows pipeline progress through terminal and file logging
 
 ## Tech Stack
 
 - Python
 - Requests
-- BeautifulSoup
-- CSV
-- JSON
-- argparse
-- logging
-- pathlib
+- Beautiful Soup
+- `argparse`
+- `logging`
+- `pathlib`
+- CSV and JSON standard-library modules
 
 ## Project Structure
 
-    multi-page-catalog-scraper/
-      src/
-        main.py
-        fetcher.py
-        parser.py
-        writer.py
-        reporter.py
-        logger_config.py
+```text
+multi-page-catalog-scraper/
+├── src/
+│   ├── main.py
+│   ├── fetcher.py
+│   ├── parser.py
+│   ├── writer.py
+│   ├── reporter.py
+│   └── logger_config.py
+├── data/
+│   └── processed/
+│       ├── books.csv
+│       └── books.json
+├── reports/
+│   └── report.md
+├── logs/
+├── README.md
+├── requirements.txt
+└── .gitignore
+```
 
-      data/
-        processed/
-          books.csv
-          books.json
+## Installation
 
-      reports/
-        report.md
+Clone the repository and enter the project directory:
 
-      logs/
-      README.md
-      requirements.txt
-      .gitignore
+```bash
+git clone https://github.com/Mr-sanabi/multi-page-catalog-scraper.git
+cd multi-page-catalog-scraper
+```
+
+Create and activate a virtual environment, then install the dependencies:
+
+```bash
+python -m venv .venv
+```
+
+Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+macOS or Linux:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## Usage
 
-Install dependencies:
+Scrape three pages and use the default output paths:
 
-    pip install -r requirements.txt
+```bash
+python src/main.py --pages 3
+```
 
-Run the scraper from the project root:
+Use custom output paths:
 
-    python src/main.py --pages 3 --csv data/processed/books.csv --json data/processed/books.json --report reports/report.md
+```bash
+python src/main.py --pages 3 --csv custom/data/books.csv --json custom/data/books.json --report custom/reports/report.md
+```
 
-Example with 5 pages:
-
-    python src/main.py --pages 5 --csv data/processed/books.csv --json data/processed/books.json --report reports/report.md
+Missing output directories are created automatically.
 
 ## CLI Arguments
 
-    --pages    Number of catalog pages to scrape
-    --csv      Path for the CSV output file
-    --json     Path for the JSON output file
-    --report   Path for the Markdown report
+| Argument | Required | Default | Description |
+| --- | --- | --- | --- |
+| `--pages` | Yes | — | Number of catalog pages to scrape. Must be greater than zero. |
+| `--csv` | No | `data/processed/books.csv` | Destination path for the CSV output. |
+| `--json` | No | `data/processed/books.json` | Destination path for the JSON output. |
+| `--report` | No | `reports/report.md` | Destination path for the Markdown report. |
 
-## Output
+Display the built-in help:
 
-The pipeline generates:
+```bash
+python src/main.py --help
+```
 
-    data/processed/books.csv
-    data/processed/books.json
-    reports/report.md
+## Output Schema
 
-Each scraped book record contains:
+Each book record contains:
 
-    title
-    price
-    availability
-    rating
-    product_url
+| Field | Description |
+| --- | --- |
+| `title` | Book title |
+| `price` | Displayed catalog price |
+| `availability` | Availability text from the catalog |
+| `rating` | Text rating from `One` to `Five`; empty when unavailable |
+| `product_url` | Absolute URL of the product page |
 
-## Report Contents
+Example JSON record:
+
+```json
+{
+  "title": "A Light in the Attic",
+  "price": "£51.77",
+  "availability": "In stock",
+  "rating": "Three",
+  "product_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
+}
+```
+
+## Generated Files
+
+With the default settings, the pipeline creates:
+
+```text
+data/processed/books.csv
+data/processed/books.json
+reports/report.md
+logs/log.txt
+```
 
 The Markdown report includes:
 
-- Number of pages scraped
-- Total number of books
-- Rating distribution
-- Availability distribution
-- Sample scraped records
+- successfully scraped page count
+- total book count
+- rating distribution
+- availability distribution
+- five sample records
 
-Example sections:
+Example summary for three successful pages:
 
-    # Catalog Scraping Report
+```text
+## Summary
+- Pages scraped: 3
+- Total books: 60
+```
 
-    ## Summary
-    - Pages scraped: 3
-    - Total books: 60
+## Reliability
 
-    ## Ratings
-    - One: 15
-    - Two: 8
-    - Three: 13
-    - Four: 10
-    - Five: 14
+Each HTTP request uses a timeout and status validation. Network failures, unsuccessful HTTP responses, and empty pages are logged without terminating the entire run. Failed pages are excluded from the successful-page count.
 
-    ## Availability
-    - In stock: 60
+If no books are collected, the pipeline logs an error and stops before writing empty output files.
 
-## Target Website
+## Pipeline
 
-This project uses Books to Scrape, a public demo website for web scraping practice:
-
-    https://books.toscrape.com/
+```text
+catalog page URLs
+→ fetch HTML
+→ parse book cards
+→ normalize records and product URLs
+→ export CSV and JSON
+→ generate Markdown report
+```
 
 ## Purpose
 
-This project demonstrates a clean scraping pipeline:
-
-    catalog page URL
-    → fetch HTML
-    → parse book cards
-    → extract structured records
-    → export CSV
-    → export JSON
-    → generate Markdown report
-
-It is designed as a portfolio project for web scraping, data extraction, CLI automation, and structured output generation.
+This project demonstrates a modular scraping pipeline with multi-page extraction, structured outputs, CLI configuration, logging, validation, and basic failure handling. It is intended as a portfolio example for web scraping, data extraction, and Python automation.
 
 ## Status
 
-Portfolio-ready v1.
+Portfolio-ready v1.1
