@@ -10,8 +10,6 @@ def ensure_parent_directory(file_path):
 
     parent_dir.mkdir(parents=True, exist_ok=True)
     
-    
-
 def save_csv(file_path, records):
     if not records:
         return
